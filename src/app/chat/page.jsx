@@ -1,13 +1,24 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [userId, setUserId] = useState("");
+  const messagesEndRef = useRef(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const code = localStorage.getItem("roomCode");
@@ -91,30 +102,53 @@ export default function ChatPage() {
             backgroundColor: "#f9f9f9",
           }}
         >
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              style={{
-                margin: "10px 0",
-                display: "flex",
-                justifyContent:
-                  msg.senderId === parseInt(userId) ? "flex-end" : "flex-start",
-              }}
-            >
+          {messages.map((msg, index) => {
+            const isUser = msg.senderId === parseInt(userId);
+            const isAI = msg.senderId === -1;
+
+            return (
               <div
+                key={index}
                 style={{
-                  maxWidth: "70%",
-                  padding: "10px 15px",
-                  borderRadius: "15px",
-                  backgroundColor:
-                    msg.senderId === parseInt(userId) ? "#8B4513" : "#e0e0e0",
-                  color: msg.senderId === parseInt(userId) ? "#fff" : "#000",
+                  margin: "10px 0",
+                  display: "flex",
+                  justifyContent: isUser ? "flex-end" : "flex-start",
                 }}
               >
-                {msg.message}
+                <div
+                  style={{
+                    maxWidth: "80%",
+                    padding: isAI ? "15px 20px" : "10px 15px",
+                    borderRadius: "15px",
+                    backgroundColor: isAI
+                      ? "#FFF8DC"
+                      : isUser
+                      ? "#8B4513"
+                      : "#e0e0e0",
+                    color: isAI ? "#000" : isUser ? "#fff" : "#000",
+                    fontStyle: isAI ? "normal" : "normal",
+                    border: isAI ? "2px solid #FFD700" : "none",
+                    boxShadow: isAI ? "0 2px 6px rgba(0,0,0,0.1)" : "none",
+                    lineHeight: "1.5",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {isAI && (
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        marginBottom: "8px",
+                        color: "#B8860B",
+                      }}
+                    >
+                      AI 상담사 안내
+                    </div>
+                  )}
+                  <div>{msg.message}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div
@@ -130,6 +164,11 @@ export default function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="메시지를 입력하세요"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSend();
+              }
+            }}
             style={{
               flex: 1,
               padding: "10px",
@@ -152,6 +191,7 @@ export default function ChatPage() {
           </button>
         </div>
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
