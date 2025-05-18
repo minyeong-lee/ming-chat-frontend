@@ -7,6 +7,9 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  console.log("API URL: ", API_URL);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -19,7 +22,7 @@ export default function Home() {
     console.log("비밀번호:", password);
 
     try {
-      const response = await fetch('http://localhost:8080/api/members/login', {
+      const response = await fetch(`${API_URL}/api/members/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,6 +31,8 @@ export default function Home() {
       });
 
       if (response.ok) {
+        const data = await response.json(); //응답 JSON 파싱 (이거 안 쓰면 undefined)
+        localStorage.setItem('creatorId', data.id)
         alert('로그인 성공! 채팅방으로 이동합니다.')
         router.push('/main');
       } else {

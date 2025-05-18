@@ -10,6 +10,8 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -19,7 +21,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/members/signup", {
+      const response = await fetch(`${API_URL}/api/members/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
