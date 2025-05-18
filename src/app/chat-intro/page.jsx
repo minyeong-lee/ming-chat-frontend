@@ -17,12 +17,17 @@ export default function ChatIntroPage() {
 
     const roomCode = await response.text();
     console.log("방 코드: ", roomCode);
+
+    //일단 방 아이디 저장해두기
+    localStorage.setItem('roomCode', roomCode);
+
+    //임시로 상대방에게 알려줄 방 코드 보여주기
+    alert(`방 코드: ${roomCode} (상대방에게 공유하세요!)`);
+
     router.push("/chat");
   };
 
   const enterRoom = async () => {
-    console.log("입력한 방 코드: ", roomCodeInput);
-    //추가 필요
     router.push("/enter-room");
   };
 

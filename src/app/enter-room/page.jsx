@@ -4,12 +4,25 @@ import { useState } from "react";
 
 export default function EnterRoomPage() {
   const router = useRouter();
-  const [roomCodeInput, setRoomCodeInput] = useState('');
+  const [roomCode, setRoomCode] = useState('');
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const userId = localStorage.getItem('creatorId');
 
-  const handleEnterRoom = () => {
-    console.log("입력한 방 코드: ", roomCodeInput);
-    // TODO: 서버 검증 요청 예정
-    router.push('/chat');
+  const handleEnterRoom = async () => {
+    console.log('버튼 클릭됨: ', roomCode)
+    const response = await fetch(`${API_URL}/api/rooms/enter`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ roomCode, userId: parseInt(userId) }),
+    });
+
+    if (response.ok) {
+      localStorage.setItem('roomCode', roomCode);
+      alert('입장 성공! 채팅방으로 이동합니다.');
+      router.push('/chat');
+    } else {
+      alert('입장 실패! 방 코드를 확인해주세요.');
+    }
   };
 
   return (
@@ -18,9 +31,9 @@ export default function EnterRoomPage() {
       <input
         type="text"
         placeholder="방 코드 입력"
-        value={roomCodeInput}
-        onChange={(e) => setRoomCodeInput(e.target.value)}
-        style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
+        value={roomCode}
+        onChange={(e) => setRoomCode(e.target.value)}
+        style={{ width: '95%', padding: '10px', marginBottom: '10px' }}
       />
       <button onClick={handleEnterRoom} className="button-primary">
         입장하기
